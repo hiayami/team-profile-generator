@@ -1,44 +1,13 @@
+//var to get npm package
 var inquirer = require("inquirer");
 const fs = require("fs");
+//calls classes from files in lib folder
+const Employee = require('./lib/Employee')
+const Manager = require('./lib/Manager')
+const Engineer = require('./lib/Engineer')
+const Intern = require('./lib/Intern');
 
-class Person {
-  name;
-  ID;
-  email;
-  role;
-  customAttribute;
-  constructor(res) {
-    this.name = res.name;
-    this.ID = res.ID;
-    this.email = res.email;
-  }
-}
-
-class Manager extends Person {
-  role = '<i class="fa-solid fa-mug-hot"></i> Manager';
-  constructor(res) {
-    super(res);
-    this.customAttribute = `Office number: ${res.customAttribute}`;
-  }
-}
-
-class Engineer extends Person {
-  role = '<i class="fa-solid fa-glasses"></i> Engineer';
-  constructor(res) {
-    super(res);
-    this.customAttribute = `GitHub: ${res.customAttribute}`;
-  }
-}
-
-class Intern extends Person {
-  role = '<i class="fa-solid fa-user-graduate"></i> Intern';
-  constructor(res) {
-    super(res);
-    this.customAttribute = `School: ${res.customAttribute}`;
-  }
-}
-
-//async function to have user answer all prompts before
+//async function to have user answer all prompts before creating HTML file
 (async function () {
   const managerInfo = await inquirer.prompt([
     { name: "name", message: "Enter manager name" },
@@ -47,10 +16,13 @@ class Intern extends Person {
     { name: "customAttribute", message: "Enter manager office number" },
   ]);
 
-  const persons = [];
+  //keep employees in an array
+  const employees = [];
 
-  persons.push(new Manager(managerInfo));
+  //add Manager to array
+  employees.push(new Manager(managerInfo));
 
+//prompt user to choose role, to create employee type
   let roleInfo = await inquirer.prompt([
     {
       name: "role",
@@ -60,12 +32,14 @@ class Intern extends Person {
     },
   ]);
 
+//continue to loop until user chooses "exit"
   while (roleInfo.role != "exit") {
     let schoolOrUsernameMessage = "Enter school name";
     if (roleInfo.role == "engineer") {
       schoolOrUsernameMessage = "Enter GitHub username";
     }
 
+//prompt user for info about employee
     const teammateInfo = await inquirer.prompt([
       { name: "name", message: "Enter team member name" },
       { name: "ID", message: "Enter team member ID" },
@@ -73,12 +47,14 @@ class Intern extends Person {
       { name: "customAttribute", message: schoolOrUsernameMessage },
     ]);
 
-    persons.push(
+//add answers to employee array
+    employees.push(
       roleInfo.role == "engineer"
         ? new Engineer(teammateInfo)
         : new Intern(teammateInfo)
     );
 
+//ask next role to create
     roleInfo = await inquirer.prompt([
       {
         name: "role",
@@ -89,25 +65,26 @@ class Intern extends Person {
     ]);
   }
 
-  const cards = persons
+//map employees array into HTML employee cards and join it into a single string
+  const cards = employees
     .map(
-      (person) => `
+      (employee) => `
         <div class="card is-inline-block m-2" style="width:220px">
             <div class="card-header hero is-info p-2">
-                <h2 class="is-size-3">${person.name}</h2>
+                <h2 class="is-size-3">${employee.name}</h2>
                 <div class="is-size-4">
-                    ${person.role}
+                    ${employee.role}
                 </div>
             </div>
             <div class="px-2 py-3 has-background-white-ter">
                 <div class="has-background-white px-3 py-1 mb-1">
-                    ID: ${person.ID}
+                    ID: ${employee.ID}
                 </div>
                 <div class="has-background-white px-3 py-1 mb-1">
-                    Email: <a href="mailto:${person.email}">${person.email}</a>
+                    Email: <a href="mailto:${employee.email}">${employee.email}</a>
                 </div>
                 <div class="has-background-white px-3 py-1">
-                     ${person.customAttribute}
+                     ${employee.customAttribute}
                 </div>
             </div>
         </div>
@@ -115,6 +92,7 @@ class Intern extends Person {
     )
     .join("\n");
 
+//creates HTML for page, injects employee cards into it
   const HTML = `
         <!DOCTYPE html>
         <html lang="en">
@@ -151,10 +129,3 @@ class Intern extends Person {
     `;
   fs.writeFileSync("index.HTML", HTML);
 })();
-
-// inquirer
-//     .prompt([
-//         { name: "managerName", message: "Enter manager name"},
-//     ])
-//     .then(answer => { })
-//     .catch(e => console.error(e))
