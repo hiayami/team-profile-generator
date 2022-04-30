@@ -13,7 +13,7 @@ An application that can be run in the command line to generate an HTML file with
 * [Tests](#tests)
 * [Questions](#questions)
 ## Installation
-Ensure that node and npm are installed, and clone the repo.
+Clone repository. This application uses node and npm (inquirer package).
 ## Usage
 Follow the prompts in the command line and an HTML will appear
 ## License
@@ -21,7 +21,7 @@ Read more about MIT License here: [MIT License](https://opensource.org/licenses/
 ## How to Contribute
 Refer to installation to contribute
 ## Tests
-run the application
+Run the application with Jest
 ## Questions
 [hiayami](https://github.com/hiayami)
 
