@@ -1,58 +1,121 @@
 var inquirer = require("inquirer");
-const fs = require('fs');
+const fs = require("fs");
 
-//async function to have user answer all prompts before 
-(async function() {
-    const managerInfo = await inquirer.prompt([
-        
-           { name: "managerName", message: "Enter manager name" },
-           { name: "managerID", message: "Enter manager ID" },
-           { name: "managerEmail", message: "Enter manager email" },
-           { name: "officeLocation", message: "Enter manager office number" },
-        
-    ])
-    let roleInfo = await inquirer.prompt([
-        {
-            name: "role",
-            message: "Choose team member role",
-            type: "list",
-            choices: [
-                "engineer", "intern", "exit",
-            ]
-        }
-    ])
-    const teammates = []
-    while (roleInfo.role != "exit") {
-        let schoolOrUsernameMessage = "Enter school name"
-        if (roleInfo.role == "engineer") {
-            schoolOrUsernameMessage = "Enter GitHub username"
-        } 
+class Person {
+  name;
+  ID;
+  email;
+  role;
+  customAttribute;
+  constructor(res) {
+    this.name = res.name;
+    this.ID = res.ID;
+    this.email = res.email;
+  }
+}
 
-        const teammateInfo = await inquirer.prompt ([
+class Manager extends Person {
+  role = '<i class="fa-solid fa-mug-hot"></i> Manager';
+  constructor(res) {
+    super(res);
+    this.customAttribute = `Office number: ${res.customAttribute}`;
+  }
+}
 
-                {name: "teamName", message: "Enter team member name"},
-                {name: "ID", message: "Enter team member ID"},
-                {name: "email", message: "Enter team member email"},
-                {name: "schoolOrUsername", message: schoolOrUsernameMessage}
-                
-        ])
+class Engineer extends Person {
+  role = '<i class="fa-solid fa-glasses"></i> Engineer';
+  constructor(res) {
+    super(res);
+    this.customAttribute = `GitHub: ${res.customAttribute}`;
+  }
+}
 
-        teammateInfo.role = roleInfo.role
+class Intern extends Person {
+  role = '<i class="fa-solid fa-user-graduate"></i> Intern';
+  constructor(res) {
+    super(res);
+    this.customAttribute = `School: ${res.customAttribute}`;
+  }
+}
 
-        teammates.push(teammateInfo)
+//async function to have user answer all prompts before
+(async function () {
+  const managerInfo = await inquirer.prompt([
+    { name: "name", message: "Enter manager name" },
+    { name: "ID", message: "Enter manager ID" },
+    { name: "email", message: "Enter manager email" },
+    { name: "customAttribute", message: "Enter manager office number" },
+  ]);
 
-        roleInfo = await inquirer.prompt([
-            {
-                name: "role",
-                message: "Choose team member role",
-                type: "list",
-                choices: [
-                    "engineer", "intern", "exit",
-                ]
-            }
-        ])
+  const persons = [];
+
+  persons.push(new Manager(managerInfo));
+
+  let roleInfo = await inquirer.prompt([
+    {
+      name: "role",
+      message: "Choose team member role",
+      type: "list",
+      choices: ["engineer", "intern", "exit"],
+    },
+  ]);
+
+  while (roleInfo.role != "exit") {
+    let schoolOrUsernameMessage = "Enter school name";
+    if (roleInfo.role == "engineer") {
+      schoolOrUsernameMessage = "Enter GitHub username";
     }
-    const HTML = `
+
+    const teammateInfo = await inquirer.prompt([
+      { name: "name", message: "Enter team member name" },
+      { name: "ID", message: "Enter team member ID" },
+      { name: "email", message: "Enter team member email" },
+      { name: "customAttribute", message: schoolOrUsernameMessage },
+    ]);
+
+    persons.push(
+      roleInfo.role == "engineer"
+        ? new Engineer(teammateInfo)
+        : new Intern(teammateInfo)
+    );
+
+    roleInfo = await inquirer.prompt([
+      {
+        name: "role",
+        message: "Choose team member role",
+        type: "list",
+        choices: ["engineer", "intern", "exit"],
+      },
+    ]);
+  }
+
+  const cards = persons
+    .map(
+      (person) => `
+        <div class="card is-inline-block m-2" style="width:220px">
+            <div class="card-header hero is-info p-2">
+                <h2 class="is-size-3">${person.name}</h2>
+                <div class="is-size-4">
+                    ${person.role}
+                </div>
+            </div>
+            <div class="px-2 py-3 has-background-white-ter">
+                <div class="has-background-white px-3 py-1 mb-1">
+                    ID: ${person.ID}
+                </div>
+                <div class="has-background-white px-3 py-1 mb-1">
+                    Email: <a href="mailto:${person.email}">${person.email}</a>
+                </div>
+                <div class="has-background-white px-3 py-1">
+                     ${person.customAttribute}
+                </div>
+            </div>
+        </div>
+    `
+    )
+    .join("\n");
+
+  const HTML = `
         <!DOCTYPE html>
         <html lang="en">
             <head>
@@ -78,35 +141,16 @@ const fs = require('fs');
                 class="is-flex is-flex-wrap-wrap is-justify-content-center"
                 style="max-width:713px;margin:40px auto 0;"
             >
-                <div class="card is-inline-block m-2" style="width:220px">
-                    <div class="card-header hero is-info p-2">
-                        <h2 class="is-size-3">${managerInfo.managerName}</h2>
-                        <div class="is-size-4">
-                            <i class="fa-solid fa-mug-hot"></i>
-                            Manager
-                        </div>
-                    </div>
-                    <div class="px-2 py-3 has-background-white-ter">
-                        <div class="has-background-white px-3 py-1 mb-1">
-                            ID: ${managerInfo.managerID}
-                        </div>
-                        <div class="has-background-white px-3 py-1 mb-1">
-                            Email: <a href="mailto:${managerInfo.managerEmail}">${managerInfo.managerEmail}</a>
-                        </div>
-                        <div class="has-background-white px-3 py-1">
-                            Office number: ${managerInfo.officeLocation}
-                        </div>
-                    </div>
-                </div>
+              ${cards}
             </section>
 
             <body>
 
             </body>
         </html>
-    `
-    fs.writeFileSync('index.HTML', HTML)
-})()
+    `;
+  fs.writeFileSync("index.HTML", HTML);
+})();
 
 // inquirer
 //     .prompt([
