@@ -46,6 +46,11 @@ Follow the prompts in the command line and an HTML will appear
 ![team-profile-generator](https://user-images.githubusercontent.com/98536530/166125082-8a22b28f-0151-41b9-9842-5c2ea70fa572.gif)
 
 Link for full video of how to use application: https://drive.google.com/file/d/1Y2FqS6IeiVapPSFNRF9rLZYPrxQLRqpe/view?usp=sharing
+### Sample HTML
+
+![Screen Shot 2022-05-07 at 1 33 13 PM](https://user-images.githubusercontent.com/98536530/167270897-1a438c71-b670-4634-b6b4-e10efe26dc9a.png)
+[Sample HTML](https://github.com/hiayami/team-profile-generator/blob/main/index.HTML)
+
 ## License
 Read more about MIT License here: [MIT License](https://opensource.org/licenses/MIT)
 ## How to Contribute
